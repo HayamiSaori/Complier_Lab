@@ -1,0 +1,4 @@
+     int a;
+int b;
+char c=100;
+a=b+10;

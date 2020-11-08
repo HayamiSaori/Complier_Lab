@@ -2,8 +2,8 @@
 /*----------------- 标识符 -----------------*/
 const int TOKEN = 1;
 /*----------------- 常数 -----------------*/
-const int UNSIGNEDINT = 2;
-const int UNSIGNEDFLOAT = 3;
+const int SIGNEDINT = 2;
+const int SIGNEDFLOAT = 3;
 const int BOOLEAN = 4;
 const int STRING = 5;
 /*----------------- C语言关键字 -----------------*/
@@ -47,16 +47,17 @@ const int DIV = 41;
 const int NOT = 42;
 const int OR = 43;
 const int AND = 44;
-const int EQU = 45;// ==
-const int UEQ = 46;// !=
-const int GOE = 47;// >=
-const int SOE = 48;// <=
-const int GRT = 49;// >
-const int SML = 50;// <
+const int EQU = 45; // ==
+const int NEQ = 46; // !=
+const int GOE = 47; // >=
+const int SOE = 48; // <=
+const int GRT = 49; // >
+const int SML = 50; // <
+const int ASSIGN = 57; // =
 /*----------------- 分界符 -----------------*/
-const int COMMA = 51;// , 
-const int SEMICOLON = 52;// ;
-const int LP = 53;// (
-const int RP = 54;// )
-const int LC = 55;// {
-const int RC = 56;// }
+const int COMMA = 51;     // ,
+const int SEMICOLON = 52; // ;
+const int LP = 53;        // (
+const int RP = 54;        // )
+// const int LC = 55;        // {
+// const int RC = 56;        // }
