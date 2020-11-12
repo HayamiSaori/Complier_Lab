@@ -104,6 +104,10 @@ int InstallID(string s)
         {
             temp = TOKEN_LIST.size() + 1;
             TOKEN_LIST[s] = temp;
+            ofstream character_list;
+            character_list.open("character_list.txt",ios::app);
+            character_list << temp << " " << s << endl;
+            character_list.close();
             return temp;
         }
     }
@@ -148,11 +152,25 @@ token ScanCode(long& begin,long& end)
         {
             end++;
         }
-        t = SOURCE_CODE.substr(begin,end-begin);
-        end--;
-        result.value = t;
-        result.category = SIGNEDINT;
-        // return result; 
+        if(SOURCE_CODE[end] == '.')
+        {
+            end++;
+            while (isDigit(SOURCE_CODE[end]))
+            {
+                end++;
+            }
+            t = SOURCE_CODE.substr(begin,end-begin);
+            end--;
+            result.value = t;
+            result.category = SIGNEDFLOAT;
+        }
+        else
+        {
+            t = SOURCE_CODE.substr(begin,end-begin);
+            end--;
+            result.value = t;
+            result.category = SIGNEDINT;
+        }
     }
     else
     {
@@ -253,7 +271,6 @@ token ScanCode(long& begin,long& end)
     return result;
 }
 
-
 int main(int argc,char * argv[])
 {
     string CODE_FILE_PATH = "code.txt";
@@ -270,6 +287,6 @@ int main(int argc,char * argv[])
         // temp_str = "(" ;+ ss.str() + "," + temptoken.value;
         token_file << "(" << temptoken.category<<"," + temptoken.value + ")" << endl;
         temptoken = ScanCode(begin,end);
-        
-    }
+    }   
+    token_file.close();
 }

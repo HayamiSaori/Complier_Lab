@@ -2,3 +2,5 @@
 int b;
 char c=100;
 a=b+10;
+char str;
+int b=1.25;
