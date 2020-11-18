@@ -162,14 +162,14 @@ token ScanCode(long& begin,long& end)
             t = SOURCE_CODE.substr(begin,end-begin);
             end--;
             result.value = t;
-            result.category = SIGNEDFLOAT;
+            result.category = FLOAT;
         }
         else
         {
             t = SOURCE_CODE.substr(begin,end-begin);
             end--;
             result.value = t;
-            result.category = SIGNEDINT;
+            result.category = INTERGER;
         }
     }
     else
@@ -255,6 +255,14 @@ token ScanCode(long& begin,long& end)
                 result.category = GRT;
                 result.value = ">";
             }
+            break;
+        case '(':
+            result.category = LP;
+            result.value = "(";
+            break;
+        case ')':
+            result.category = RP;
+            result.value = ")";
             break;
         case ';':
             result.category = SEMICOLON;

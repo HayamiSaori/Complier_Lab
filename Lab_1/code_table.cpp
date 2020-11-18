@@ -2,14 +2,14 @@
 /*----------------- 标识符 -----------------*/
 const int TOKEN = 1;
 /*----------------- 常数 -----------------*/
-const int SIGNEDINT = 2;
-const int SIGNEDFLOAT = 3;
+const int INTERGER = 2;
+const int FLOAT = 3;
 const int BOOLEAN = 4;
 const int STRING = 5;
 /*----------------- C语言关键字 -----------------*/
 //const int AUTO = 6;
 const int BREAK = 7;
-//const int CASE = 8;
+//const int CASE = 8;   
 const int CHAR = 9;
 //const int CONST = 10;
 //const int CONTINUE = 11;
