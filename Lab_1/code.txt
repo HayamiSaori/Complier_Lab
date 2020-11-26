@@ -1,7 +1,5 @@
      int a;
 int b;
-char c=100;
 a=b+10;
-char str;
 double num=1.25;
 num = a*6.81;

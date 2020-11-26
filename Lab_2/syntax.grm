@@ -1,19 +1,51 @@
-[���ս��]
-DEFINE ASSIGN EXP OP S KEYWORD
-[�ս��]
-+ - * / ( ) = TOKEN NUM int double
-[�ķ���ʼ��]
-E
-[����ʽ]
-E -> S;
-S -> DEFINE;
-S -> ASSIGN;
-DEFINE -> KEYWORD TOKEN;
-ASSIGN -> TOKEN = EXP;
-EXP -> ( EXP );
-EXP -> EXP OP NUM;
-EXP -> EXP OP TOKEN;
-EXP -> TOKEN;
-EXP -> NUM;
-OP -> +|-|*|/;
-KEYWORD -> int|double;
+[非终结符]
+	EXP ITEM FACTOR DEFINE ASSIGN KEYWORD OP_LOW OP_HIGH S 
+[终结符]
+	TOKEN NUM + - * / int double =
+[文法起始符]
+	S'
+[生成式]
+	S' => S;
+	S => DEFINE | ASSIGN;
+	DEFINE => KEYWORD TOKEN;
+	ASSIGN => TOKEN = EXP;
+	EXP => ITEM | ITEM + EXP | ITEM - EXP;
+	ITEM => FACTOR | FACTOR * ITEM | FACTOR / ITEM;
+	FACTOR => TOKEN | NUM;
+	KEYWORD => int | double;
+//这是一个表达式文法
+
+[nonterminal]
+	表达式 项 因子 声明语句 赋值语句 关键字 S
+[terminal]
+	变量 常量 + * / - int double
+[start]
+	S'
+[production]
+	S' => S;
+	S => 声明语句 | 赋值语句;
+	声明语句 => 关键字 变量;
+	赋值语句 => 变量 表达式;
+	表达式 => 项 | 项 + 表达式 | 项 - 表达式;
+	项 => 因子 | 因子 * 项 | 因子 / 项;
+	因子 => 变量 | 常量;
+	关键字 => int | double;
+
+    
+[非终结符]
+	EXP ITEM FACTOR DEFINE ASSIGN KEYWORD OP_LOW OP_HIGH S 
+[终结符]
+	TOKEN NUM + - * / int double =
+[文法起始符]
+	S'
+[生成式]
+	S' => S;
+	S => DEFINE | ASSIGN;
+	DEFINE => KEYWORD TOKEN;
+	ASSIGN => TOKEN = EXP;
+	EXP => ITEM | ITEM OP_LOW EXP;
+	ITEM => FACTOR | FACTOR OP_HIGH ITEM;
+	FACTOR => TOKEN | NUM;
+	KEYWORD => int | double;
+	OP_LOW => + | -;
+	OP_HIGH => * | /;

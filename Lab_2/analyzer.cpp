@@ -107,30 +107,30 @@ int InstallID(string s)
     {
         return DOUBLE;
     }
-    else if (s=="char")
-    {
-        return CHAR;
-    }
-    else if (s=="if")
-    {
-        return IF;
-    }
-    else if (s=="else")
-    {
-        return ELSE;
-    }
-    else if (s=="while")
-    {
-        return WHILE;
-    }
-    else if (s=="break")
-    {
-        return BREAK;
-    }
-    else if (s=="return")
-    {
-        return RETURN;
-    }
+    // else if (s=="char")
+    // {
+    //     return CHAR;
+    // }
+    // else if (s=="if")
+    // {
+    //     return IF;
+    // }
+    // else if (s=="else")
+    // {
+    //     return ELSE;
+    // }
+    // else if (s=="while")
+    // {
+    //     return WHILE;
+    // }
+    // else if (s=="break")
+    // {
+    //     return BREAK;
+    // }
+    // else if (s=="return")
+    // {
+    //     return RETURN;
+    // }
     else
     {
         map<string,int>::iterator i;
@@ -211,14 +211,14 @@ token ScanCode(long& begin,long& end)
             t = SOURCE_CODE.substr(begin,end-begin);
             end--;
             result.value = t;
-            result.category = FLOAT;
+            result.category = SIGNEDFLOAT;
         }
         else
         {
             t = SOURCE_CODE.substr(begin,end-begin);
             end--;
             result.value = t;
-            result.category = INTERGER;
+            result.category = SIGNEDINT;
         }
     }
     else
@@ -277,42 +277,42 @@ token ScanCode(long& begin,long& end)
                 result.value = "=";
             }
             break;
-        case '<':
-            end++;
-            if(SOURCE_CODE[end] == '=')
-            {
-                result.category = SOE;
-                result.value = "<=";
-            }
-            else
-            {
-                end--;
-                result.category = SML;
-                result.value = "<";
-            }
-            break;
-        case '>':
-            end++;
-            if(SOURCE_CODE[end] == '=')
-            {
-                result.category = GOE;
-                result.value = ">=";
-            }
-            else
-            {
-                end--;
-                result.category = GRT;
-                result.value = ">";
-            }
-            break;
-        case '(':
-            result.category = LP;
-            result.value = "(";
-            break;
-        case ')':
-            result.category = RP;
-            result.value = ")";
-            break;
+        // case '<':
+        //     end++;
+        //     if(SOURCE_CODE[end] == '=')
+        //     {
+        //         result.category = SOE;
+        //         result.value = "<=";
+        //     }
+        //     else
+        //     {
+        //         end--;
+        //         result.category = SML;
+        //         result.value = "<";
+        //     }
+        //     break;
+        // case '>':
+        //     end++;
+        //     if(SOURCE_CODE[end] == '=')
+        //     {
+        //         result.category = GOE;
+        //         result.value = ">=";
+        //     }
+        //     else
+        //     {
+        //         end--;
+        //         result.category = GRT;
+        //         result.value = ">";
+        //     }
+        //     break;
+        // case '(':
+        //     result.category = LP;
+        //     result.value = "(";
+        //     break;
+        // case ')':
+        //     result.category = RP;
+        //     result.value = ")";
+        //     break;
         case ';':
             result.category = SEMICOLON;
             result.value = ";";
