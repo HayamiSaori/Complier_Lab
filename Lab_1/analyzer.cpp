@@ -57,6 +57,45 @@ string getCode(string code_path)
     code_file.close();
     return codes;
 }
+int getKeyword(string s)
+{
+    if(s=="int")
+    {
+        return INT;
+    }
+    else if (s=="double")
+    {
+        return DOUBLE;
+    }
+    else if (s=="char")
+    {
+        return CHAR;
+    }
+    else if (s=="if")
+    {
+        return IF;
+    }
+    else if (s=="else")
+    {
+        return ELSE;
+    }
+    else if (s=="while")
+    {
+        return WHILE;
+    }
+    else if (s=="break")
+    {
+        return BREAK;
+    }
+    else if (s=="return")
+    {
+        return RETURN;
+    }
+    else
+    {
+        return -1;
+    }
+}
 int InstallID(string s)
 {
     int temp;
@@ -84,7 +123,7 @@ int InstallID(string s)
     {
         return WHILE;
     }
-    else if (s=="BREAK")
+    else if (s=="break")
     {
         return BREAK;
     }
@@ -138,11 +177,21 @@ token ScanCode(long& begin,long& end)
         }
         t = SOURCE_CODE.substr(begin,end-begin);
         end--;
-        ID = InstallID(t);
-        ss << ID;
-        ID_s = ss.str();
-        result.value = ID_s;
-        result.category = TOKEN;
+        ID = getKeyword(t);
+        if(ID == -1)
+        {
+            ID = InstallID(t);
+            result.category = TOKEN;
+            ss << ID;
+            ID_s = ss.str();
+            result.value = ID_s;
+        }
+        else
+        {
+            result.category = ID;
+            result.value = t;
+        }
+        
         // return result;
     }
     else if(isDigit(SOURCE_CODE[begin]))
