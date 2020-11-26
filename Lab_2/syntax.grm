@@ -1,0 +1,19 @@
+[非终结符]
+DEFINE ASSIGN EXP OP S KEYWORD
+[终结符]
++ - * / ( ) = TOKEN NUM int double
+[文法起始符]
+E
+[生成式]
+E -> S;
+S -> DEFINE;
+S -> ASSIGN;
+DEFINE -> KEYWORD TOKEN;
+ASSIGN -> TOKEN = EXP;
+EXP -> ( EXP );
+EXP -> EXP OP NUM;
+EXP -> EXP OP TOKEN;
+EXP -> TOKEN;
+EXP -> NUM;
+OP -> +|-|*|/;
+KEYWORD -> int|double;
