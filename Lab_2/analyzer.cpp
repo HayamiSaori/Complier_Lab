@@ -3,348 +3,111 @@
 #include <string>
 #include <ctype.h>
 #include <fstream>
-#include <sstream>
-#include "code_table.cpp"
+#include <vector>
+#include "code_table.h"
+const int ACTION_ROW = 23;
+const int ACTION_COL = 10;
 using namespace std;
-int isBlank(char c)
-{
-    if(c=='\n' || c==' ' || c=='\t')
-    {
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-int isDigit(char c)
-{
-    if(!isalpha(c) && isalnum(c))
-    {
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-map<string,int> TOKEN_LIST;
 struct token
 {
     int category;
     string value;
 };
-string SOURCE_CODE;
-string getCode(string code_path)
+struct singal_action
 {
-    ifstream code_file;
-    string buff,codes = "";
-    long cur_lenth = 0;
-    code_file.open(code_path,ios::in);
-    while (getline(code_file,buff))
+    int mode;// -1为shift,0为空,1为reduce
+    int next_state;
+    string fomula;
+};
+vector<struct token> ParseTokenFile(string path)
+{
+    ifstream token_file;
+    struct token temp;
+    vector<struct token> token_list;
+    token_file.open(path,ios::in);
+    while(!token_file.eof())
     {
-        if((cur_lenth + buff.size()) > codes.max_size())
-        {
-            cout << "the code file is too long to get all" << endl;
-            break;
-        }
-        else
-        {
-            codes += buff;
-            cur_lenth += buff.size();
-        }
+        token_file >> temp.category >> temp.value;
+        // cout << temp.category << ',' << temp.value << endl;
+        token_list.push_back(temp);
     }
-    code_file.close();
-    return codes;
+    token_file.close();
+    return token_list;
 }
-int getKeyword(string s)
+string CutString(string line,int& left,int& right)
 {
-    if(s=="int")
+    string result="Empty";
+    while(line[right]!=',' && line[right]!='\n')
     {
-        return INT;
+        right++;
     }
-    else if (s=="double")
+    if(left != right)
     {
-        return DOUBLE;
+        result = line.substr(left,right-left);
+        if(result == "")result = "Empty";
     }
-    else if (s=="char")
-    {
-        return CHAR;
-    }
-    else if (s=="if")
-    {
-        return IF;
-    }
-    else if (s=="else")
-    {
-        return ELSE;
-    }
-    else if (s=="while")
-    {
-        return WHILE;
-    }
-    else if (s=="break")
-    {
-        return BREAK;
-    }
-    else if (s=="return")
-    {
-        return RETURN;
-    }
-    else
-    {
-        return -1;
-    }
-}
-int InstallID(string s)
-{
-    int temp;
-    if(s=="int")
-    {
-        return INT;
-    }
-    else if (s=="double")
-    {
-        return DOUBLE;
-    }
-    // else if (s=="char")
-    // {
-    //     return CHAR;
-    // }
-    // else if (s=="if")
-    // {
-    //     return IF;
-    // }
-    // else if (s=="else")
-    // {
-    //     return ELSE;
-    // }
-    // else if (s=="while")
-    // {
-    //     return WHILE;
-    // }
-    // else if (s=="break")
-    // {
-    //     return BREAK;
-    // }
-    // else if (s=="return")
-    // {
-    //     return RETURN;
-    // }
-    else
-    {
-        map<string,int>::iterator i;
-        i = TOKEN_LIST.find(s);
-        if(i!=TOKEN_LIST.end())
-        {
-            return i->second;
-        }
-        else
-        {
-            temp = TOKEN_LIST.size() + 1;
-            TOKEN_LIST[s] = temp;
-            ofstream character_list;
-            character_list.open("character_list.txt",ios::app);
-            character_list << temp << " " << s << endl;
-            character_list.close();
-            return temp;
-        }
-    }
-}
-token ScanCode(long& begin,long& end)
-{
-    end = begin;
-    token result;
-    string t,ID_s;
-    int ID;stringstream ss;
-    if(begin >= SOURCE_CODE.size())
-    {
-        result.category = -1;
-        result.value = "";
-        return result;
-    }
-    while(isBlank(SOURCE_CODE[begin]))
-    {
-        begin++;
-    }
-    end = begin;
-    if(isalpha(SOURCE_CODE[begin]))
-    {
-        end++;
-        while (isalnum(SOURCE_CODE[end]))
-        {
-            end++;
-        }
-        t = SOURCE_CODE.substr(begin,end-begin);
-        end--;
-        ID = getKeyword(t);
-        if(ID == -1)
-        {
-            ID = InstallID(t);
-            result.category = TOKEN;
-            ss << ID;
-            ID_s = ss.str();
-            result.value = ID_s;
-        }
-        else
-        {
-            result.category = ID;
-            result.value = t;
-        }
-        
-        // return result;
-    }
-    else if(isDigit(SOURCE_CODE[begin]))
-    {
-        end++;
-        while (isDigit(SOURCE_CODE[end]))
-        {
-            end++;
-        }
-        if(SOURCE_CODE[end] == '.')
-        {
-            end++;
-            while (isDigit(SOURCE_CODE[end]))
-            {
-                end++;
-            }
-            t = SOURCE_CODE.substr(begin,end-begin);
-            end--;
-            result.value = t;
-            result.category = SIGNEDFLOAT;
-        }
-        else
-        {
-            t = SOURCE_CODE.substr(begin,end-begin);
-            end--;
-            result.value = t;
-            result.category = SIGNEDINT;
-        }
-    }
-    else
-    {
-        switch (SOURCE_CODE[begin])
-        {
-        case '+':
-            result.category = ADD;
-            result.value = "+";
-            break;
-        case '-':
-            result.category = SUB;
-            result.value = "-";
-            break;    
-        case '*':
-            result.category = MUL;
-            result.value = "*";
-            break;
-        case '/':
-            result.category = DIV;
-            result.value = "/";
-            break;
-        case '!':
-            end++;
-            if(SOURCE_CODE[end] == '=')
-            {
-                result.category = NEQ;
-                result.value = "!=";
-            }
-            else
-            {
-                end--;
-                result.category = NOT;
-                result.value = "!";
-            }
-            break;
-        case '|':
-            result.category = OR;
-            result.value = "|";
-            break;
-        case '&':
-            result.category = AND;
-            result.value = "&";
-            break;
-        case '=':
-            end++;
-            if(SOURCE_CODE[end] == '=')
-            {
-                result.category = EQU;
-                result.value = "==";
-            }
-            else
-            {
-                end--;
-                result.category = ASSIGN;
-                result.value = "=";
-            }
-            break;
-        // case '<':
-        //     end++;
-        //     if(SOURCE_CODE[end] == '=')
-        //     {
-        //         result.category = SOE;
-        //         result.value = "<=";
-        //     }
-        //     else
-        //     {
-        //         end--;
-        //         result.category = SML;
-        //         result.value = "<";
-        //     }
-        //     break;
-        // case '>':
-        //     end++;
-        //     if(SOURCE_CODE[end] == '=')
-        //     {
-        //         result.category = GOE;
-        //         result.value = ">=";
-        //     }
-        //     else
-        //     {
-        //         end--;
-        //         result.category = GRT;
-        //         result.value = ">";
-        //     }
-        //     break;
-        // case '(':
-        //     result.category = LP;
-        //     result.value = "(";
-        //     break;
-        // case ')':
-        //     result.category = RP;
-        //     result.value = ")";
-        //     break;
-        case ';':
-            result.category = SEMICOLON;
-            result.value = ";";
-            break;
-        default:
-            result.category = -1;
-            result.value = "";
-            break;
-        }
-    }
-    end++;
-    begin = end;
+    right++;
+    left = right;
     return result;
 }
-
-int main(int argc,char * argv[])
+void ParseActionFile(string path,/*&vector<vector<struct singal_action>> act*/struct singal_action act[ACTION_ROW][ACTION_COL])
 {
-    string CODE_FILE_PATH = "code.txt";
-    string TOKEN_FILE_PATH = "token.txt";
-    ofstream token_file;
-    token_file.open(TOKEN_FILE_PATH,ios::out);
-    string temp_str;
-    SOURCE_CODE = getCode(CODE_FILE_PATH);
-    // cout<<SOURCE_CODE<<' '<<SOURCE_CODE.size()<<endl;
-    long begin=0,end=0;
-    token temptoken = ScanCode(begin,end);
-    while (temptoken.category!=-1)
+    ifstream action_file;
+    string temp[ACTION_ROW][ACTION_COL];
+    string buff,temp_str;
+    int left,right,i,j;
+    action_file.open(path,ios::in);
+    i=0;j=0;
+    while(getline(action_file,buff))
     {
-        // temp_str = "(" ;+ ss.str() + "," + temptoken.value;
-        // token_file << "(" << temptoken.category<<"," + temptoken.value + ")" << endl;
-        token_file << temptoken.category << ',' << temptoken.value << endl;
-        temptoken = ScanCode(begin,end);
-    }   
-    token_file.close();
+        left = 0;right = 0;
+        while(right <= buff.size())
+        {
+            temp_str = CutString(buff,left,right);
+            if(temp_str == "Empty" || temp_str == "")
+            {
+                cout << "find none" << endl;
+                act[i][j].mode = 0;
+            }
+            else if(temp_str[0] == 's')
+            {
+                cout << "find shift" << endl;
+                act[i][j].mode = -1;
+            }
+            else
+            {cout << "find reduce" << endl;
+                act[i][j].mode = 1;
+            }
+            j++;
+            //cout << temp_str << endl;
+        }
+        //cout<<"line:"<<i<<",col:"<<j<<endl;
+        i++;j=0;
+    }
+    for(i=0;i<ACTION_ROW;i++)
+    {
+        for(j=0;j<ACTION_COL;j++)
+        {
+            cout << act[i][j].mode << ',';
+        }
+        cout << endl;
+    }
+
+}
+int main()
+{
+
+    string TOKEN_FILE_PATH = "token.txt";
+    string FOMULA_FILE_PATH = "fomula.txt";
+    string ACTION_FILE_PATH = "ACTION_2.txt";
+    vector<struct token> token_list;
+    string ACTION[ACTION_ROW][ACTION_COL];
+    struct singal_action act[ACTION_ROW][ACTION_COL];
+    token_list = ParseTokenFile(TOKEN_FILE_PATH);
+    int i;
+    /*for(i=0;i<token_list.size();i++)
+    {
+        cout << token_list[i].category << ',' << token_list[i].value << endl;
+    }*/
+    ParseActionFile(ACTION_FILE_PATH,act);
 }

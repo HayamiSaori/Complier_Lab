@@ -1,0 +1,23 @@
+﻿shift 5,,,,,,shift 6,shift 7,,
+,,,,,,,,,reduce S -> DEFINE
+,,,,,,,,,reduce S -> ASSIGN
+shift 8,,,,,,,,,
+,,,,,,,,,accept
+,,,,,,,,shift 9,
+reduce KEYWORD -> int,,,,,,,,,
+reduce KEYWORD -> double,,,,,,,,,
+,,,,,,,,,reduce DEFINE -> KEYWORD TOKEN
+shift 13,shift 14,,,,,,,,
+,,,,,,,,,reduce ASSIGN -> TOKEN = EXP
+,,shift 16,shift 17,,,,,,reduce EXP -> ITEM
+,,reduce ITEM -> FACTOR,reduce ITEM -> FACTOR,shift 19,shift 20,,,,reduce ITEM -> FACTOR
+,,reduce FACTOR -> TOKEN,reduce FACTOR -> TOKEN,reduce FACTOR -> TOKEN,reduce FACTOR -> TOKEN,,,,reduce FACTOR -> TOKEN
+,,reduce FACTOR -> NUM,reduce FACTOR -> NUM,reduce FACTOR -> NUM,reduce FACTOR -> NUM,,,,reduce FACTOR -> NUM
+shift 13,shift 14,,,,,,,,
+reduce OP_LOW -> +,reduce OP_LOW -> +,,,,,,,,
+reduce OP_LOW -> -,reduce OP_LOW -> -,,,,,,,,
+shift 13,shift 14,,,,,,,,
+reduce OP_HIGH -> *,reduce OP_HIGH -> *,,,,,,,,
+reduce OP_HIGH -> /,reduce OP_HIGH -> /,,,,,,,,
+,,,,,,,,,reduce EXP -> ITEM OP_LOW EXP
+,,reduce ITEM -> FACTOR OP_HIGH ITEM,reduce ITEM -> FACTOR OP_HIGH ITEM,,,,,,reduce ITEM -> FACTOR OP_HIGH ITEM
