@@ -343,7 +343,7 @@ int main(int argc,char * argv[])
     {
         // temp_str = "(" ;+ ss.str() + "," + temptoken.value;
         // token_file << "(" << temptoken.category<<"," + temptoken.value + ")" << endl;
-        token_file << temptoken.category << ',' << temptoken.value << endl;
+        token_file << temptoken.category << '\t' << temptoken.value << endl;
         temptoken = ScanCode(begin,end);
     }   
     token_file.close();

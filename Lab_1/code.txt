@@ -1,5 +1,6 @@
      int a;
 int b;
 a=b+10;
-double num=1.25;
+double num;
 num = a*6.81;
+num = b + a * num;
