@@ -118,6 +118,36 @@ void ParseActionFile(string path,/*&vector<vector<struct singal_action>> act*/st
     }
     action_file.close();
 }
+// int main(void)
+// {
+//     singal_action act[ACTION_ROW][ACTION_COL];
+//     ParseActionFile("ACTION_2.txt",act);
+//     int i,j;
+//     for(i=0;i<ACTION_ROW;i++)
+//     {
+//         cout << "\n-------line " << i << "-------" << endl;
+//         for ( j = 0; j < ACTION_COL; j++)
+//         {
+//             if(act[i][j].mode == -1)
+//             {
+//                 cout << "shift :" << act[i][j].next_state << '\t';
+//             }
+//             else if (act[i][j].mode == 1)
+//             {
+//                 cout << "reduce " << act[i][j].fomula << '\t';
+//             }
+//             else if (act[i][j].mode == 2)
+//             {
+//                 cout << "acc\t";
+//             }
+//             else
+//             {
+//                 cout << "Empty\t";
+//             }
+//         }
+        
+//     }
+// }
 void InitGotoList(int goto_list[GOTO_ROW][GOTO_COL])
 {
     int i,j;
