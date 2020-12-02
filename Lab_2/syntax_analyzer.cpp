@@ -45,6 +45,10 @@ vector<struct token> ParseTokenFile(string path)
 string CutString(string line,int& left,int& right)
 {
     string result="Empty";
+    /*if(right >= line.size())
+    {
+        return result;
+    }*/
     while(line[right]!=',' && line[right]!='\n')
     {
         right++;
@@ -66,10 +70,12 @@ void ParseActionFile(string path,/*&vector<vector<struct singal_action>> act*/st
     int left,right,i,j,k;
     action_file.open(path,ios::in);
     i=0;j=0;
+    //getline(action_file,buff);
     while(getline(action_file,buff))
+    //while(buff.size()>0)
     {
         left = 0;right = 0;
-        while(right <= buff.size())
+        while(right <= buff.size() && buff.size() > 0)
         {
             temp_str = CutString(buff,left,right);
             if(temp_str == "Empty" || temp_str == "")
@@ -114,9 +120,20 @@ void ParseActionFile(string path,/*&vector<vector<struct singal_action>> act*/st
             //cout << temp_str << endl;
         }
         cout<<"line:"<<i<<",col:"<<j<<endl;
+        //getline(action_file,buff);cout<<buff<<"||size:"<<buff.size()<<endl;
         i++;j=0;
+        if(i==22)break;
     }
+    for(i=0;i<ACTION_COL;i++)
+    {
+        act[22][i].mode=0;
+    }
+    act[22][2].mode=1;act[22][2].fomula="ITEM -> FACTOR OP_HIGH ITEM";act[22][2].beta=3;act[22][2].A="ITEM";
+    act[22][3].mode=1;act[22][3].fomula="ITEM -> FACTOR OP_HIGH ITEM";act[22][3].beta=3;act[22][3].A="ITEM";
+    act[22][9].mode=1;act[22][9].fomula="ITEM -> FACTOR OP_HIGH ITEM";act[22][9].beta=3;act[22][9].A="ITEM";
+    cout<<"now return"<<endl;
     action_file.close();
+    return;
 }
 void InitGotoList(int goto_list[GOTO_ROW][GOTO_COL])
 {
@@ -152,6 +169,7 @@ void SyntaxAnalyze(string reduce_path,vector<struct token> tokens,struct singal_
     stack<int> character_stack;
     stack<int> state_stack;
     stack<int> total_stack;
+    string temp_fomula,temp_A,cur_op_low,cur_op_high;
     len = tokens.size();
     i = 0;
     total_stack.push(ACTION_DICT[SEMICOLON]);
@@ -185,12 +203,15 @@ void SyntaxAnalyze(string reduce_path,vector<struct token> tokens,struct singal_
             total_stack.push(goto_list[top][tmp]);
             //cout << "now reduce" << endl;
             cout << act[cur_state][ACTION_DICT[a]].fomula << endl;
+            temp_fomula = act[cur_state][ACTION_DICT[a]].fomula;
+            temp_A = act[cur_state][ACTION_DICT[a]].A;
+            if(temp_fomula = "")
             reduce_file << act[cur_state][ACTION_DICT[a]].fomula << endl;
             cur_state = total_stack.top();
         }
         else if(act[cur_state][ACTION_DICT[a]].mode == 2) // accept
         {
-            //cout << "----------finish----------" << endl;
+            cout << "----------finish----------" << endl;
             reduce_file << "FINISH" << endl;
             reduce_file.close();
             return;
@@ -198,12 +219,13 @@ void SyntaxAnalyze(string reduce_path,vector<struct token> tokens,struct singal_
         else
         {
             cout << "Error!" << endl;
+            reduce_file << "Error!" << endl;
             reduce_file.close();
             return;
         }
     }
 }
-int main()
+int main(void)
 {
     string TOKEN_FILE_PATH = "token.txt";
     string FOMULA_FILE_PATH = "fomula.txt";
@@ -240,4 +262,5 @@ int main()
         if(i!=token_list.size() - 1)i++;
         pos = i;
     }
+    return 0;
 }
