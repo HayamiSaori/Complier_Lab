@@ -160,10 +160,29 @@ void InitDict()
     GOTO_DICT["DEFINE"] = 3;GOTO_DICT["ASSIGN"] = 4;GOTO_DICT["KEYWORD"] = 5;
     GOTO_DICT["OP_LOW"] = 6;GOTO_DICT["OP_HIGH"] = 7;GOTO_DICT["S"] = 8;
 }
+void UpdateToken(string x)
+{
+    ifstream list_old;
+    ofstream list_new;
+    int i,entry,id;
+    string token_name;
+    stringstream ss;
+    ss.str(x);
+    ss >> id;
+    list_old.open("character_list.txt",ios::in);
+    list_new.open("character_list_new.txt",ios::app);
+    for(i=0;i<id;i++)
+    {
+        list_old >> entry >> token_name;
+    }
+    list_new << entry << "\t" << token_name << "\t" << "number\t" << "0x" << hex << id*4 << endl;
+    list_old.close();
+    list_new.close();
+}
 void SyntaxAnalyze(string reduce_path,vector<struct token> tokens,struct singal_action act[ACTION_ROW][ACTION_COL],int goto_list[GOTO_ROW][GOTO_COL])
 {
     int len,i,j,cur_state,next,a;
-    int tmp,top;
+    int tmp,top,cnt=0;
     int cur_factor=1,cur_item=1,cur_exp=1,old_factor=0,old_item=0;
     string cur_id = "0";
     string left_id = "0";
@@ -214,10 +233,10 @@ void SyntaxAnalyze(string reduce_path,vector<struct token> tokens,struct singal_
             reduce_file << act[cur_state][ACTION_DICT[a]].fomula << endl;
             //------中间代码生成------
             temp_fomula = act[cur_state][ACTION_DICT[a]].fomula;
-            temp_A = act[cur_state][ACTION_DICT[a]].A;
             if(temp_fomula == "DEFINE -> KEYWORD TOKEN")
             {
                 midcode_file << "def\t" << "none\t" << "none\t" << cur_id << endl;
+                UpdateToken(cur_id);
             }
             if(temp_fomula == "ASSIGN -> TOKEN = EXP")
             {
@@ -269,7 +288,6 @@ void SyntaxAnalyze(string reduce_path,vector<struct token> tokens,struct singal_
                 midcode_file << "=\t" << cur_num << "\t" << "none\t" << "f" << cur_factor << endl;
                 cur_factor++;
             }
-            //if(temp_fomula == "")
             cur_state = total_stack.top();
         }
         else if(act[cur_state][ACTION_DICT[a]].mode == 2) // accept
