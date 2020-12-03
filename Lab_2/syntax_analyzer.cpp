@@ -70,9 +70,7 @@ void ParseActionFile(string path,/*&vector<vector<struct singal_action>> act*/st
     int left,right,i,j,k;
     action_file.open(path,ios::in);
     i=0;j=0;
-    //getline(action_file,buff);
     while(getline(action_file,buff))
-    //while(buff.size()>0)
     {
         left = 0;right = 0;
         while(right <= buff.size() && buff.size() > 0)
@@ -203,10 +201,19 @@ void SyntaxAnalyze(string reduce_path,vector<struct token> tokens,struct singal_
             total_stack.push(goto_list[top][tmp]);
             //cout << "now reduce" << endl;
             cout << act[cur_state][ACTION_DICT[a]].fomula << endl;
+            reduce_file << act[cur_state][ACTION_DICT[a]].fomula << endl;
+            //------中间代码生成------
             temp_fomula = act[cur_state][ACTION_DICT[a]].fomula;
             temp_A = act[cur_state][ACTION_DICT[a]].A;
-            if(temp_fomula = "")
-            reduce_file << act[cur_state][ACTION_DICT[a]].fomula << endl;
+            
+            if(temp_fomula == "DEFINE -> KEYWORD TOKEN")// 此时读到分号，输出前一个token（即变量）的id
+            {
+                reduce_file << "def\t" << "none\t" << "none\t" << tokens[i - 1].value << endl;
+            }
+            if(temp_fomula == "ASSIGN -> TOKEN = EXP")
+            {
+
+            }
             cur_state = total_stack.top();
         }
         else if(act[cur_state][ACTION_DICT[a]].mode == 2) // accept

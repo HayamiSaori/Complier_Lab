@@ -1,0 +1,31 @@
+def	none	none	1
+FINISH
+def	none	none	2
+FINISH
+=	2	none	f1
+=	f1	none	i1
+=	10	none	f2
+=	f2	none	i1
+=	i1	none	e1
++	i0	e1	e2
+=	e2	none	1
+FINISH
+def	none	none	3
+FINISH
+=	1	none	f1
+=	6.81	none	f2
+=	f2	none	i1
+*	f1	i1	i2
+=	i2	none	e1
+=	e1	none	3
+FINISH
+=	2	none	f1
+=	f1	none	i1
+=	1	none	f2
+=	3	none	f3
+=	f3	none	i1
+*	f2	i1	i2
+=	i2	none	e1
++	i1	e1	e2
+=	e2	none	3
+FINISH

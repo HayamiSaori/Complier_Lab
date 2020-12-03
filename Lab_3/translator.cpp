@@ -45,6 +45,10 @@ vector<struct token> ParseTokenFile(string path)
 string CutString(string line,int& left,int& right)
 {
     string result="Empty";
+    /*if(right >= line.size())
+    {
+        return result;
+    }*/
     while(line[right]!=',' && line[right]!='\n')
     {
         right++;
@@ -69,7 +73,7 @@ void ParseActionFile(string path,/*&vector<vector<struct singal_action>> act*/st
     while(getline(action_file,buff))
     {
         left = 0;right = 0;
-        while(right <= buff.size())
+        while(right <= buff.size() && buff.size() > 0)
         {
             temp_str = CutString(buff,left,right);
             if(temp_str == "Empty" || temp_str == "")
@@ -114,40 +118,21 @@ void ParseActionFile(string path,/*&vector<vector<struct singal_action>> act*/st
             //cout << temp_str << endl;
         }
         cout<<"line:"<<i<<",col:"<<j<<endl;
+        //getline(action_file,buff);cout<<buff<<"||size:"<<buff.size()<<endl;
         i++;j=0;
+        if(i==22)break;
     }
+    for(i=0;i<ACTION_COL;i++)
+    {
+        act[22][i].mode=0;
+    }
+    act[22][2].mode=1;act[22][2].fomula="ITEM -> FACTOR OP_HIGH ITEM";act[22][2].beta=3;act[22][2].A="ITEM";
+    act[22][3].mode=1;act[22][3].fomula="ITEM -> FACTOR OP_HIGH ITEM";act[22][3].beta=3;act[22][3].A="ITEM";
+    act[22][9].mode=1;act[22][9].fomula="ITEM -> FACTOR OP_HIGH ITEM";act[22][9].beta=3;act[22][9].A="ITEM";
+    cout<<"now return"<<endl;
     action_file.close();
+    return;
 }
-// int main(void)
-// {
-//     singal_action act[ACTION_ROW][ACTION_COL];
-//     ParseActionFile("ACTION_2.txt",act);
-//     int i,j;
-//     for(i=0;i<ACTION_ROW;i++)
-//     {
-//         cout << "\n-------line " << i << "-------" << endl;
-//         for ( j = 0; j < ACTION_COL; j++)
-//         {
-//             if(act[i][j].mode == -1)
-//             {
-//                 cout << "shift :" << act[i][j].next_state << '\t';
-//             }
-//             else if (act[i][j].mode == 1)
-//             {
-//                 cout << "reduce " << act[i][j].fomula << '\t';
-//             }
-//             else if (act[i][j].mode == 2)
-//             {
-//                 cout << "acc\t";
-//             }
-//             else
-//             {
-//                 cout << "Empty\t";
-//             }
-//         }
-        
-//     }
-// }
 void InitGotoList(int goto_list[GOTO_ROW][GOTO_COL])
 {
     int i,j;
@@ -179,9 +164,14 @@ void SyntaxAnalyze(string reduce_path,vector<struct token> tokens,struct singal_
 {
     int len,i,j,cur_state,next,a;
     int tmp,top;
+    int cur_factor=1,cur_item=1,cur_exp=1,old_factor=0,old_item=0;
+    string cur_id = "0";
+    string left_id = "0";
+    string cur_num = "0";
     stack<int> character_stack;
     stack<int> state_stack;
     stack<int> total_stack;
+    string temp_fomula,temp_A,cur_op_low,cur_op_high;
     len = tokens.size();
     i = 0;
     total_stack.push(ACTION_DICT[SEMICOLON]);
@@ -189,10 +179,16 @@ void SyntaxAnalyze(string reduce_path,vector<struct token> tokens,struct singal_
     cur_state = 0;
     a = tokens[0].category;
     ofstream reduce_file;
+    ofstream midcode_file;
     reduce_file.open(reduce_path,ios::app);
+    midcode_file.open("midcode.txt",ios::app);
     while(true)
     {
         a = tokens[i].category;
+
+        if(a == TOKEN && left_id == "0")left_id=tokens[i].value;// 保存最右变量的入口
+        if(a == TOKEN)cur_id=tokens[i].value;// 保存当前变量的入口
+        if(a == SIGNEDINT || a == SIGNEDFLOAT)cur_num=tokens[i].value;//保存当前常量
         if(act[cur_state][ACTION_DICT[a]].mode == -1) // shift
         {
             // total_stack.push(ACTION_DICT[a]);
@@ -216,24 +212,87 @@ void SyntaxAnalyze(string reduce_path,vector<struct token> tokens,struct singal_
             //cout << "now reduce" << endl;
             cout << act[cur_state][ACTION_DICT[a]].fomula << endl;
             reduce_file << act[cur_state][ACTION_DICT[a]].fomula << endl;
+            //------中间代码生成------
+            temp_fomula = act[cur_state][ACTION_DICT[a]].fomula;
+            temp_A = act[cur_state][ACTION_DICT[a]].A;
+            if(temp_fomula == "DEFINE -> KEYWORD TOKEN")
+            {
+                midcode_file << "def\t" << "none\t" << "none\t" << cur_id << endl;
+            }
+            if(temp_fomula == "ASSIGN -> TOKEN = EXP")
+            {
+                midcode_file << "=\t" << "e" << cur_exp << "\t" << "none\t" << left_id << endl;
+            }
+            if(temp_fomula == "EXP -> ITEM")
+            {
+                //cur_exp++;
+                midcode_file << "=\t" << "i" << cur_item << "\t" << "none\t" << "e" << cur_exp << endl;
+            }
+            if(temp_fomula == "EXP -> ITEM OP_LOW EXP")
+            {
+                midcode_file << cur_op_low << "\t" << "i" << cur_item - 1 << "\t" <<"e" << cur_exp << "\t" << "e" << cur_exp + 1 << endl;
+                cur_exp++;
+            }
+            if(temp_fomula == "ITEM -> FACTOR")
+            {
+                midcode_file << "=\t" << "f" << cur_factor - 1 << "\t" << "none\t" << "i" << cur_item << endl;
+                //cur_item++;
+            }
+            if(temp_fomula == "ITEM -> FACTOR OP_HIGH ITEM")
+            {
+                midcode_file << cur_op_high << "\t" << "f" << cur_factor - 2 << "\t" << "i" << cur_item << "\t" << "i" << cur_item + 1 << endl;
+                cur_item++;
+            }
+            if(temp_fomula == "OP_LOW -> +")
+            {
+                cur_op_low = "+";
+            }
+            if(temp_fomula == "OP_LOW -> -")
+            {
+                cur_op_low = "-";
+            }
+            if(temp_fomula == "OP_HIGH -> *")
+            {
+                cur_op_high = "*";
+            }
+            if(temp_fomula == "OP_HIGH -> /")
+            {
+                cur_op_high = "/";
+            }
+            if(temp_fomula == "FACTOR -> TOKEN")
+            {
+                midcode_file << "=\t" << cur_id << "\t" << "none\t" << "f" << cur_factor << endl;
+                cur_factor++;
+            }
+            if(temp_fomula == "FACTOR -> NUM")
+            {
+                midcode_file << "=\t" << cur_num << "\t" << "none\t" << "f" << cur_factor << endl;
+                cur_factor++;
+            }
+            //if(temp_fomula == "")
             cur_state = total_stack.top();
         }
         else if(act[cur_state][ACTION_DICT[a]].mode == 2) // accept
         {
-            //cout << "----------finish----------" << endl;
+            cout << "----------finish----------" << endl;
             reduce_file << "FINISH" << endl;
+            midcode_file << "FINISH" << endl;
             reduce_file.close();
+            midcode_file.close();
             return;
         }
         else
         {
             cout << "Error!" << endl;
+            reduce_file << "Error!" << endl;
+            midcode_file << "Error!" << endl;
             reduce_file.close();
+            midcode_file.close();
             return;
         }
     }
 }
-int main()
+int main(void)
 {
     string TOKEN_FILE_PATH = "token.txt";
     string FOMULA_FILE_PATH = "fomula.txt";
@@ -265,9 +324,9 @@ int main()
             cout << temp_list[j].category  << '\t' << temp_list[j].value << endl;
         }
         SyntaxAnalyze(FOMULA_FILE_PATH,temp_list,act,goto_list);
-        cout << "----------" << endl;
         temp_list.clear();
         if(i!=token_list.size() - 1)i++;
         pos = i;
     }
+    return 0;
 }
